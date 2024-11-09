@@ -1,5 +1,6 @@
 import javax.swing.*;
-import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -8,52 +9,73 @@ import java.io.File;
 
 public class FileExplorer {
     private JList<String> list1;
-    private JButton exitButton;
+    private JButton diskRootButton;
     File[] roots=File.listRoots();
-    //File[] rootc=roots[0].listFiles();
+
 
     FileExplorer() {
+        //file explorer frame
         JFrame fileExplorer=new JFrame();
-        fileExplorer.setSize(400,400);
+        fileExplorer.setSize(600,600);
         fileExplorer.setLayout(null);
         fileExplorer.setVisible(true);
         fileExplorer.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
+        //list component
+        DefaultListModel<File> listModel=new DefaultListModel<>();
+        listModel.addElement(new File(roots[0].getPath()));
+        listModel.set(0,roots[0]);
+        list1=new JList(listModel);
+        fileExplorer.add(list1);
+        list1.setBounds(10,10,300,300);
+
         //exit button
-        exitButton = new JButton("Exit");
-        exitButton.setBounds(250, 1, 100, 30);
-        exitButton.addActionListener(new ActionListener() {
+        diskRootButton = new JButton("Return to Disk Root");
+        diskRootButton.setBounds(310, 1, 100, 30);
+        diskRootButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                System.exit(0);
+                listModel.removeAllElements();
+                int i=roots.length-1;
+                System.out.println(i);
+                while(i!=-1) {
+                    listModel.addElement(roots[i]);
+                    i--;
+                }
             }
         });
-        fileExplorer.add(exitButton);
+        fileExplorer.add(diskRootButton);
 
-        //        JList <String>list2 = new JList(rootc);
-//        list2.setBounds(310,310,300,300);
 
-        list1=new JList(roots);
-        list1.setBounds(10,10,300,300);
+        //list listeners
         list1.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
-                    fileExplorer.remove(list1);
-                    File[] rootc=roots[0].listFiles();
-                    list1=new JList(rootc);
-                    list1.setBounds(10,10,300,300);
-                    fileExplorer.add(list1);
-                    fileExplorer.repaint();
+                    int index = list1.getSelectedIndex();
+                    System.out.println(index);
+                    File[] newroot = roots[index].listFiles();
+
+                    listModel.removeAllElements();
+                    int i =newroot.length-1;
+                    System.out.println(i);
+                    while(i!=-1) {
+                        listModel.addElement(newroot[i]);
+                        i--;
+                    }
+
                 }
             }
         });
 
-        fileExplorer.add(list1);
-
-
-
+        list1.addListSelectionListener(new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent e) {
+                int index=list1.getSelectedIndex();
+                if(index!=-1)
+                    System.out.println("index of Selected item is:"+index);
+                else System.out.println("no item selected");
+            }
+        });
     }
-
 }
 
 
