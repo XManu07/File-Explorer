@@ -11,8 +11,18 @@ import java.nio.file.Path;
 public class FileExplorer {
     private JList<String> list1;
     private JButton diskRootButton;
+    private JButton backInRootButton;
     File[] roots=File.listRoots();
+    static String current_path;
+    String backInPath(String path){
+        int last_backslah=path.lastIndexOf(File.separator);
+        if (last_backslah!=2)
+            path=path.substring(0,last_backslah);
+        if (last_backslah==2)
+            path=path.substring(0,3);
+        return path;
 
+    }
 
     FileExplorer() {
 
@@ -38,7 +48,7 @@ public class FileExplorer {
 
         //region diskRootButton component
         diskRootButton = new JButton("Return to Disk Root");
-        diskRootButton.setBounds(510, 1, 100, 30);
+        diskRootButton.setBounds(510, 1, 150, 30);
         diskRootButton.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 listModel.removeAllElements();
@@ -59,34 +69,56 @@ public class FileExplorer {
             public void mouseClicked(MouseEvent e) {
                 if (e.getClickCount() == 2) {
                     int index = list1.getSelectedIndex();
-                    System.out.println("index is "+index);
                     String value=list1.getSelectedValue();
-                    System.out.println("value is "+value);
-                    File newpath=new File(value.toString());
-                    //System.out.println(newfile.toString());
-                    File[] newroot = newpath.listFiles();
-
-
+                    File newpath=new File(value);
+                    current_path=newpath.toString();
+                    System.out.println("this is the current path "+ current_path);
+                    File[] files = newpath.listFiles();
                     listModel.removeAllElements();
-                    int i =newroot.length-1;
+
+                    int i =files.length-1;
                     while(i!=-1) {
-                        listModel.addElement(newroot[i].toString());
+                        listModel.addElement(files[i].toString());
                         i--;
                     }
-
                 }
             }
         });
 
-        list1.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e) {
-                int index=list1.getSelectedIndex();
-                if(index!=-1)
-                    System.out.println("index of Selected item is:"+index);
-                else System.out.println("no item selected");
-            }
-        });
+//        list1.addListSelectionListener(new ListSelectionListener() {
+//            public void valueChanged(ListSelectionEvent e) {
+//                int index=list1.getSelectedIndex();
+//                if(index!=-1)
+//                    System.out.println("index of Selected item is:"+index);
+//                else System.out.println("no item selected");
+//            }
+//        });
         //endregion
+
+        //region backInRootButton
+        backInRootButton = new JButton("Back in root");
+        backInRootButton.setBounds(510, 35, 150, 30);
+        fileExplorer.add(backInRootButton);
+        backInRootButton.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                //modify newpath
+                String path=current_path;
+                path=backInPath(path);
+                current_path=path;
+                System.out.println("current path is "+current_path);
+                listModel.clear();
+                File[] newroot = new File(path).listFiles();
+                int i =newroot.length-1;
+                while(i!=-1) {
+                    listModel.addElement(newroot[i].toString());
+                    i--;
+                }
+            }
+            });
+
+        //endregion
+
     }
 }
 
